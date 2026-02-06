@@ -86,26 +86,47 @@ int main() {
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+
 using namespace cv;
 using namespace std;
-void main() {
+
+int main() {
     VideoCapture cap(0);
     Mat img;
+    
+    // 相机内参矩阵
     Mat cameraMatrix = (Mat_<double>(3, 3) <<
         327.9305025136076, 0, 305.9181216756677,
         0, 437.6039871995856, 261.8508654836178,
         0, 0, 1);
 
+    // 畸变系数
     Mat distCoeffs = (Mat_<double>(5, 1) <<
         -0.3597320358867337, 0.1105565777290975, -0.007885766130449081,
         0.003370992863840766, 0.02668846321460064);
+    
     while (true) {
         Mat undistorted;
-        cap.read(img);        
-        undistort(img, undistorted, cameraMatrix, distCoeffs); 
+        cap.read(img);
+        
+        if (img.empty()) {
+            cout << "无法读取图像！" << endl;
+            break;
+        }
+        
+        undistort(img, undistorted, cameraMatrix, distCoeffs);
         imshow("image", undistorted);
-        waitKey(10);
+        
+        // 按ESC退出
+        if (waitKey(10) == 27) {
+            break;
+        }
     }
+    
+    cap.release();
+    destroyAllWindows();
+    
+    return 0;
 }
 
 
